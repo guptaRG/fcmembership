@@ -1,5 +1,7 @@
 package model.benefit;
 
+import java.util.Objects;
+
 public class PlanBenefitMetadata {
     private FreeDeliveryBenefitMetadata freeDeliveryMetadata;
     private PercentDiscountBenefitMetadata percentDiscountMetadata;
@@ -91,5 +93,31 @@ public class PlanBenefitMetadata {
 
     public void setFastDeliveryMetadata(FastDeliveryBenefitMetadata fastDeliveryMetadata) {
         this.fastDeliveryMetadata = fastDeliveryMetadata;
+    }
+
+    @Override
+    public String toString() {
+        if (Objects.nonNull(freeDeliveryMetadata)) {
+            return freeDeliveryMetadata.toString();
+        }
+        if (Objects.nonNull(fastDeliveryMetadata)) {
+            return fastDeliveryMetadata.toString();
+        }
+        if (Objects.nonNull(exclusiveCouponsMetadata)) {
+            return exclusiveCouponsMetadata.toString();
+        }
+        if (Objects.nonNull(exclusiveDealsMetadata)) {
+            return exclusiveDealsMetadata.toString();
+        }
+        if (Objects.nonNull(percentDiscountMetadata)) {
+            return percentDiscountMetadata.toString();
+        }
+        if (Objects.nonNull(priorityCSMetadata)) {
+            return priorityCSMetadata.toString();
+        }
+        if (Objects.nonNull(salesEarlyAccessMetadata)) {
+            return salesEarlyAccessMetadata.toString();
+        }
+        return null;
     }
 }

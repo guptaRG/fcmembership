@@ -1,16 +1,12 @@
+import entity.SubscriptionEntity;
 import model.benefit.*;
 import model.bo.MembershipPlanBO;
 import model.enums.MembershipBenefit;
-import model.request.CreatePlanRequest;
-import model.request.CreatePlanTierBenefitRequest;
-import model.request.CreatePlanTierRequest;
+import model.request.*;
 import repository.inmemory.*;
 import service.plan.MembershipPlanService;
 import service.plan.MembershipPlanServiceImplV1;
-import service.subscription.SubscriptionService;
-import service.subscription.SubscriptionServiceImplV1;
-import service.subscription.SubscriptionStatusUpdateService;
-import service.subscription.SubscriptionStatusUpdateServiceImplV1;
+import service.subscription.*;
 
 import java.time.Duration;
 import java.util.List;
@@ -29,14 +25,16 @@ public class Main {
             SubscriptionRepository subscriptionRepository = new SubscriptionRepository();
             SubscriptionStatusUpdateEventRepository subscriptionStatusUpdateEventRepository =
                     new SubscriptionStatusUpdateEventRepository();
+            SubscriptionPaymentsRepository paymentRepository = new SubscriptionPaymentsRepository();
 
             // Service init
             MembershipPlanService planService = new MembershipPlanServiceImplV1(planRepository, planTierRepository,
                     planBenefitRepository);
             SubscriptionService subscriptionService = new SubscriptionServiceImplV1(subscriptionRepository,
                     subscriptionStatusUpdateEventRepository, planRepository, planTierRepository);
+            SubscriptionPaymentService paymentsService = new SubscriptionPaymentServiceImplV1(paymentRepository);
             SubscriptionStatusUpdateService statusUpdateService = new SubscriptionStatusUpdateServiceImplV1(
-                    subscriptionStatusUpdateEventRepository, subscriptionRepository);
+                    subscriptionStatusUpdateEventRepository, subscriptionRepository, paymentsService);
 
             // Entity init
             List<CreatePlanTierRequest> plan1Tiers = List.of(new CreatePlanTierRequest(1, "SILVER", "silver",
@@ -75,6 +73,16 @@ public class Main {
 
             System.out.println();
             System.out.println(planService.getAllPlans("1"));
+            SubscriptionEntity subscriptionTemp1 = subscriptionService.create(new CreateSubscriptionRequest("1",
+                    plan1.tiers().get(0).id(), null));
+            System.out.println(subscriptionTemp1);
+            SubscriptionEntity subscriptionTemp2 = subscriptionService.create(new CreateSubscriptionRequest("1", null,
+                    plan1.planID()));
+            System.out.println(subscriptionTemp2);
+            System.out.println(statusUpdateService.activate(new ActivateSubscriptionRequest(subscriptionTemp2.getId(),
+                    "1")));
+            System.out.println();
+
         } catch (Exception e) {
             System.out.printf("Failed: %s\n", e.getMessage());
         }

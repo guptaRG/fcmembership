@@ -10,7 +10,6 @@ public class SubscriptionEntity extends BaseEntity implements Cloneable {
     private Date currentTermStart;
     private Date currentTermEnd;
     private SubscriptionStatus status;
-    private String paymentID;
     private boolean automaticTierUpgradeEnabled;
 
     public SubscriptionEntity(String userID, PlanTierEntity planTier) {
@@ -63,14 +62,6 @@ public class SubscriptionEntity extends BaseEntity implements Cloneable {
         return newSubscriptionEntity;
     }
 
-    public String getPaymentID() {
-        return paymentID;
-    }
-
-    public void setPaymentID(String paymentID) {
-        this.paymentID = paymentID;
-    }
-
     public void setPlanTier(PlanTierEntity planTier) {
         this.planTier = planTier;
     }
@@ -84,5 +75,16 @@ public class SubscriptionEntity extends BaseEntity implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SubscriptionEntity{" +
+                "userID='" + userID + '\'' +
+                ", planTier=" + planTier +
+                ", currentTermStart=" + currentTermStart +
+                ", currentTermEnd=" + currentTermEnd +
+                ", status=" + status +
+                '}';
     }
 }

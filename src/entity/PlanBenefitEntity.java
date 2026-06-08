@@ -35,7 +35,6 @@ public class PlanBenefitEntity extends BaseEntity {
     public String toString() {
         return "PlanBenefitEntity{" +
                 "benefit=" + benefit +
-                ", planTier=" + planTier +
                 ", metadata=" + metadata +
                 '}';
     }
