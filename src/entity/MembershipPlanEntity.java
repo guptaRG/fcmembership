@@ -7,13 +7,15 @@ public class MembershipPlanEntity extends BaseEntity {
     private final String name;
     private final Duration duration;
     private final boolean recurring;
+    private String description;
 
-    public MembershipPlanEntity(int pricePaise, String name, Duration duration, boolean recurring) {
+    public MembershipPlanEntity(int pricePaise, String name, Duration duration, boolean recurring, String description) {
         super();
         this.pricePaise = pricePaise;
         this.name = name;
         this.duration = duration;
         this.recurring = recurring;
+        this.description = description;
     }
 
     public int getPricePaise() {
@@ -30,5 +32,13 @@ public class MembershipPlanEntity extends BaseEntity {
 
     public boolean isRecurring() {
         return recurring;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
