@@ -48,4 +48,14 @@ public class PlanTierEntity extends BaseEntity {
     public void setAdditionalPaymentPaise(int additionalPaymentPaise) {
         this.additionalPaymentPaise = additionalPaymentPaise;
     }
+
+    @Override
+    public String toString() {
+        return "PlanTierEntity{" +
+                "plan=" + plan +
+                ", tier=" + tier +
+                ", tierName='" + tierName + '\'' +
+                ", additionalPaymentPaise=" + additionalPaymentPaise +
+                '}';
+    }
 }
