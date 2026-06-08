@@ -5,9 +5,9 @@ import adaptor.PlanTierAdaptor;
 import entity.MembershipPlanEntity;
 import entity.PlanBenefitEntity;
 import entity.PlanTierEntity;
+import exception.InvalidRequestException;
 import model.bo.MembershipPlanBO;
 import model.bo.PlanTierBO;
-import model.bo.PlanTierBenefitBO;
 import model.request.CreatePlanRequest;
 import repository.inmemory.MembershipPlanRepository;
 import repository.inmemory.PlanBenefitRepository;
@@ -15,9 +15,6 @@ import repository.inmemory.PlanTierRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class MembershipPlanServiceImplV1 implements MembershipPlanService {
     private final MembershipPlanRepository membershipPlanRepository;
@@ -50,6 +47,9 @@ public class MembershipPlanServiceImplV1 implements MembershipPlanService {
 
     @Override
     public MembershipPlanBO createPlan(CreatePlanRequest planRequest) {
+        if (!planRequest.isValid()) {
+            throw new InvalidRequestException("Invalid create plan request", null);
+        }
         MembershipPlanEntity membershipPlanEntity = membershipPlanRepository.save(planRequest.toPlanEntity());
         List<PlanTierEntity> tiers = new ArrayList<>();
         List<PlanTierBO> tierBOs = new ArrayList<>();
