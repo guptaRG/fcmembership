@@ -96,7 +96,7 @@ public abstract class AbstractInMemoryRepository<T extends BaseEntity> implement
      */
     @Override
     public List<T> getAll() {
-        return new ArrayList<>(store.values());
+        return store.values().stream().filter(T::isActive).collect(Collectors.toList());
     }
 
     /**
@@ -105,7 +105,7 @@ public abstract class AbstractInMemoryRepository<T extends BaseEntity> implement
      */
     @Override
     public List<T> getAllOrderByCreatedAt() {
-        List<T> allValues = new ArrayList<>(store.values());
+        List<T> allValues = getAll();
         allValues.sort(Comparator.comparing(T::getCreatedAt));
         return allValues;
     }
@@ -116,7 +116,7 @@ public abstract class AbstractInMemoryRepository<T extends BaseEntity> implement
      */
     @Override
     public List<T> getAllOrderByUpdatedAt() {
-        List<T> allValues = new ArrayList<>(store.values());
+        List<T> allValues = getAll();
         allValues.sort(Comparator.comparing(T::getUpdatedAt));
         return allValues;
     }

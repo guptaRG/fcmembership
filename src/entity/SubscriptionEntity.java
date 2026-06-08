@@ -6,25 +6,35 @@ import java.util.Date;
 
 public class SubscriptionEntity extends BaseEntity {
     private final String userID;
-    private final MembershipPlanEntity plan;
+    private final PlanTierEntity planTier;
     private Date currentTermStart;
     private Date currentTermEnd;
     private SubscriptionStatus status;
     private String paymentID;
+    private boolean automaticTierUpgradeEnabled;
 
-    public SubscriptionEntity(String userID, MembershipPlanEntity plan) {
+    public SubscriptionEntity(String userID, PlanTierEntity planTier) {
         super();
         this.userID = userID;
-        this.plan = plan;
+        this.planTier = planTier;
         this.status = SubscriptionStatus.NEW_LEAD;
+        this.automaticTierUpgradeEnabled = true;
     }
 
     public String getUserID() {
         return userID;
     }
 
-    public MembershipPlanEntity getPlan() {
-        return plan;
+    public boolean isAutomaticTierUpgradeEnabled() {
+        return automaticTierUpgradeEnabled;
+    }
+
+    public void setAutomaticTierUpgradeEnabled(boolean automaticTierUpgradeEnabled) {
+        this.automaticTierUpgradeEnabled = automaticTierUpgradeEnabled;
+    }
+
+    public PlanTierEntity getPlanTier() {
+        return planTier;
     }
 
     public Date getCurrentTermStart() {
