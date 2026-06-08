@@ -3,7 +3,6 @@ package entity;
 import model.enums.SubscriptionStatus;
 
 import java.util.Date;
-import java.util.Set;
 
 public class SubscriptionStatusUpdateEventEntity extends BaseEntity {
     private final SubscriptionStatus subscriptionStatus;

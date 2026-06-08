@@ -16,7 +16,7 @@ public enum SubscriptionStatus {
         statusTransitionMap.put(PAUSED, Set.of(ACTIVE, CANCELED));
     }
 
-    public boolean isValidStatusTransition(SubscriptionStatus fromStatus,  SubscriptionStatus toStatus) {
-        return statusTransitionMap.getOrDefault(fromStatus, new HashSet<>()).contains(toStatus);
+    public boolean toStatusUpdateValid(SubscriptionStatus toStatus) {
+        return statusTransitionMap.getOrDefault(this, new HashSet<>()).contains(toStatus);
     }
 }

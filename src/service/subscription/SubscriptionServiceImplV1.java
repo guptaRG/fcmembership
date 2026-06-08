@@ -4,7 +4,10 @@ import constants.IntConstants;
 import entity.MembershipPlanEntity;
 import entity.PlanTierEntity;
 import entity.SubscriptionEntity;
+import entity.SubscriptionStatusUpdateEventEntity;
+import exception.InconsistentDBStateException;
 import exception.InvalidRequestException;
+import model.enums.SubscriptionStatus;
 import model.request.CreateSubscriptionRequest;
 import repository.inmemory.MembershipPlanRepository;
 import repository.inmemory.PlanTierRepository;
@@ -12,6 +15,8 @@ import repository.inmemory.SubscriptionRepository;
 import repository.inmemory.SubscriptionStatusUpdateEventRepository;
 import util.StringUtil;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 public class SubscriptionServiceImplV1 implements SubscriptionService {
@@ -42,7 +47,28 @@ public class SubscriptionServiceImplV1 implements SubscriptionService {
         } else {
             planTier = planTierRepository.getById(createSubscriptionRequest.planTierID()).orElseThrow();
         }
-
-        SubscriptionEntity subscription = subscriptionRepository.save(new SubscriptionEntity())
+        synchronized (createSubscriptionRequest.userID()) {
+            synchronized (planTier.getPlan().getId()) {
+                List<SubscriptionEntity> newLeadMatchingEntities =
+                        subscriptionRepository.getAllByUserSubscriptionStatus(createSubscriptionRequest.userID(),
+                                        SubscriptionStatus.NEW_LEAD)
+                                .stream()
+                                .filter(subscription -> subscription.getPlanTier().getPlan() == planTier.getPlan())
+                                .toList();
+                if (newLeadMatchingEntities.size() > 1) {
+                    throw new InconsistentDBStateException(
+                            "Number of new lead subscriptions of a user for the same plan can't more than 1.", null);
+                }
+                if (newLeadMatchingEntities.isEmpty()) {
+                    SubscriptionEntity subscription = subscriptionRepository.save(new SubscriptionEntity(
+                            createSubscriptionRequest.userID(), planTier));
+                    subscriptionStatusUpdateEventRepository.save(new SubscriptionStatusUpdateEventEntity(
+                            subscription.getStatus(), subscription, new Date()));
+                    return subscription;
+                }
+                newLeadMatchingEntities.get(0).setPlanTier(planTier);
+                return subscriptionRepository.update(newLeadMatchingEntities.get(0));
+            }
+        }
     }
 }
