@@ -41,4 +41,13 @@ public class MembershipPlanEntity extends BaseEntity {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public String toString() {
+        return "MembershipPlanEntity{" +
+                "pricePaise=" + pricePaise +
+                ", name='" + name + '\'' +
+                ", duration=" + duration +
+                '}';
+    }
 }
