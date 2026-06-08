@@ -4,9 +4,9 @@ import model.enums.SubscriptionStatus;
 
 import java.util.Date;
 
-public class SubscriptionEntity extends BaseEntity {
+public class SubscriptionEntity extends BaseEntity implements Cloneable {
     private final String userID;
-    private final PlanTierEntity planTier;
+    private PlanTierEntity planTier;
     private Date currentTermStart;
     private Date currentTermEnd;
     private SubscriptionStatus status;
@@ -57,8 +57,10 @@ public class SubscriptionEntity extends BaseEntity {
         return status;
     }
 
-    public void setStatus(SubscriptionStatus status) {
-        this.status = status;
+    public SubscriptionEntity setStatus(SubscriptionStatus status) {
+        SubscriptionEntity newSubscriptionEntity = this.clone();
+        newSubscriptionEntity.status = status;
+        return newSubscriptionEntity;
     }
 
     public String getPaymentID() {
@@ -67,5 +69,20 @@ public class SubscriptionEntity extends BaseEntity {
 
     public void setPaymentID(String paymentID) {
         this.paymentID = paymentID;
+    }
+
+    public void setPlanTier(PlanTierEntity planTier) {
+        this.planTier = planTier;
+    }
+
+    @Override
+    public SubscriptionEntity clone() {
+        try {
+            SubscriptionEntity clone = (SubscriptionEntity) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
