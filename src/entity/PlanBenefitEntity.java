@@ -30,4 +30,13 @@ public class PlanBenefitEntity extends BaseEntity {
     public void setMetadata(PlanBenefitMetadata metadata) {
         this.metadata = metadata;
     }
+
+    @Override
+    public String toString() {
+        return "PlanBenefitEntity{" +
+                "benefit=" + benefit +
+                ", planTier=" + planTier +
+                ", metadata=" + metadata +
+                '}';
+    }
 }
