@@ -3,6 +3,7 @@
 ## Developer Guide
 🧩 Problem Statement: Design a Membership Program with Tiers
 You are tasked with designing the backend system for a Membership Program for a FirstClub. The platform aims to offer users subscription-based memberships with tiered benefits, and a smooth experience integrated with the shopping and checkout journey.
+
 💡 Key Requirements:
 1. Membership Plans:
    ●
@@ -38,5 +39,6 @@ You are tasked with designing the backend system for a Membership Program for a 
    Total Order value in a month
    ○
    User belonging to a certain cohort
-   The code should be running, demo-able and APIs should be functional. You will be evaluated on the abstractions created, entity design, extensibility and modularity.
+
+The code should be running, demo-able and APIs should be functional. You will be evaluated on the abstractions created, entity design, extensibility and modularity.
    Follow the best practices for Java, bonus for thinking around concurrency.
