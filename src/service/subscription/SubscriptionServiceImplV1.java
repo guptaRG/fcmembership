@@ -1,14 +1,13 @@
 package service.subscription;
 
 import constants.IntConstants;
-import entity.MembershipPlanEntity;
-import entity.PlanTierEntity;
-import entity.SubscriptionEntity;
-import entity.SubscriptionStatusUpdateEventEntity;
+import entity.*;
 import exception.InconsistentDBStateException;
 import exception.InvalidRequestException;
 import model.enums.SubscriptionStatus;
 import model.request.CreateSubscriptionRequest;
+import model.request.DowngradePlanTierRequest;
+import model.request.UpgradePlanTierRequest;
 import repository.inmemory.MembershipPlanRepository;
 import repository.inmemory.PlanTierRepository;
 import repository.inmemory.SubscriptionRepository;
@@ -24,14 +23,18 @@ public class SubscriptionServiceImplV1 implements SubscriptionService {
     private final SubscriptionStatusUpdateEventRepository subscriptionStatusUpdateEventRepository;
     private final MembershipPlanRepository membershipPlanRepository;
     private final PlanTierRepository planTierRepository;
+    private final SubscriptionPaymentService subscriptionPaymentService;
 
     public SubscriptionServiceImplV1(SubscriptionRepository subscriptionRepository,
                                      SubscriptionStatusUpdateEventRepository subscriptionStatusUpdateEventRepository,
-                                     MembershipPlanRepository membershipPlanRepository, PlanTierRepository planTierRepository) {
+                                     MembershipPlanRepository membershipPlanRepository,
+                                     PlanTierRepository planTierRepository,
+                                     SubscriptionPaymentService subscriptionPaymentService) {
         this.subscriptionRepository = subscriptionRepository;
         this.subscriptionStatusUpdateEventRepository = subscriptionStatusUpdateEventRepository;
         this.membershipPlanRepository = membershipPlanRepository;
         this.planTierRepository = planTierRepository;
+        this.subscriptionPaymentService = subscriptionPaymentService;
     }
 
     @Override
@@ -68,6 +71,69 @@ public class SubscriptionServiceImplV1 implements SubscriptionService {
                 }
                 newLeadMatchingEntities.get(0).setPlanTier(planTier);
                 return subscriptionRepository.update(newLeadMatchingEntities.get(0));
+            }
+        }
+    }
+
+    @Override
+    public SubscriptionEntity upgradePlanTier(UpgradePlanTierRequest upgradePlanTierRequest) {
+        if (!upgradePlanTierRequest.isValid()) {
+            throw new InvalidRequestException("Invalid upgrade plan tier request", null);
+        }
+        SubscriptionEntity subs = subscriptionRepository.getById(upgradePlanTierRequest.subscriptionID()).orElseThrow();
+        if (!subs.getUserID().equals(upgradePlanTierRequest.userID())) {
+            throw new InvalidRequestException("Not authorized to upgrade plan tier", null);
+        }
+        if (subs.getStatus() == SubscriptionStatus.CANCELED || subs.getStatus() == SubscriptionStatus.NEW_LEAD) {
+            throw new InvalidRequestException("Subscription needs to be active/paused for upgrading the plan tier",
+                    null);
+        }
+        if (subs.getPlanTier().getTier() >= upgradePlanTierRequest.newPlanTier().getTier()) {
+            throw new InvalidRequestException("Can only upgrade the plan to a higher tier", null);
+        }
+        subs.setPlanTier(upgradePlanTierRequest.newPlanTier());
+        subs.setAutomaticTierChangeEnabled(false);
+        synchronized (subs.getId()) {
+            SubscriptionPaymentsEntity paymentsEntity = subscriptionPaymentService.addPayment(subs,
+                    upgradePlanTierRequest.paymentID(), upgradePlanTierRequest.newPlanTier().getAdditionalPaymentPaise() -
+                            subs.getPlanTier().getAdditionalPaymentPaise());
+            try {
+                return subscriptionRepository.update(subs);
+            } catch (Exception e) {
+                subscriptionPaymentService.delete(paymentsEntity);
+                throw e;
+            }
+        }
+    }
+
+    @Override
+    public SubscriptionEntity downgradePlanTier(DowngradePlanTierRequest downgradePlanTierRequest) {
+        if (!downgradePlanTierRequest.isValid()) {
+            throw new InvalidRequestException("Invalid downgrade plan tier request", null);
+        }
+        SubscriptionEntity subs = subscriptionRepository.getById(downgradePlanTierRequest.subscriptionID())
+                .orElseThrow();
+        if (!subs.getUserID().equals(downgradePlanTierRequest.userID())) {
+            throw new InvalidRequestException("Not authorized to downgrade plan tier", null);
+        }
+        if (subs.getStatus() == SubscriptionStatus.CANCELED || subs.getStatus() == SubscriptionStatus.NEW_LEAD) {
+            throw new InvalidRequestException("Subscription needs to be active/paused for downgrading the plan tier",
+                    null);
+        }
+        if (subs.getPlanTier().getTier() <= downgradePlanTierRequest.newPlanTier().getTier()) {
+            throw new InvalidRequestException("Can only downgrade the plan to a lower tier", null);
+        }
+        subs.setPlanTier(downgradePlanTierRequest.newPlanTier());
+        subs.setAutomaticTierChangeEnabled(false);
+        synchronized (subs.getId()) {
+            SubscriptionPaymentsEntity paymentsEntity = subscriptionPaymentService.addPayment(subs, null,
+                    downgradePlanTierRequest.newPlanTier().getAdditionalPaymentPaise() -
+                            subs.getPlanTier().getAdditionalPaymentPaise());
+            try {
+                return subscriptionRepository.update(subs);
+            } catch (Exception e) {
+                subscriptionPaymentService.delete(paymentsEntity);
+                throw e;
             }
         }
     }

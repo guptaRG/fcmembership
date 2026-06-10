@@ -30,9 +30,9 @@ public class Main {
             // Service init
             MembershipPlanService planService = new MembershipPlanServiceImplV1(planRepository, planTierRepository,
                     planBenefitRepository);
-            SubscriptionService subscriptionService = new SubscriptionServiceImplV1(subscriptionRepository,
-                    subscriptionStatusUpdateEventRepository, planRepository, planTierRepository);
             SubscriptionPaymentService paymentsService = new SubscriptionPaymentServiceImplV1(paymentRepository);
+            SubscriptionService subscriptionService = new SubscriptionServiceImplV1(subscriptionRepository,
+                    subscriptionStatusUpdateEventRepository, planRepository, planTierRepository, paymentsService);
             SubscriptionStatusUpdateService statusUpdateService = new SubscriptionStatusUpdateServiceImplV1(
                     subscriptionStatusUpdateEventRepository, subscriptionRepository, paymentsService);
 

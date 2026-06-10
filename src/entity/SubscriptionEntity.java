@@ -10,26 +10,26 @@ public class SubscriptionEntity extends BaseEntity implements Cloneable {
     private Date currentTermStart;
     private Date currentTermEnd;
     private SubscriptionStatus status;
-    private boolean automaticTierUpgradeEnabled;
+    private boolean automaticTierChangeEnabled;
 
     public SubscriptionEntity(String userID, PlanTierEntity planTier) {
         super();
         this.userID = userID;
         this.planTier = planTier;
         this.status = SubscriptionStatus.NEW_LEAD;
-        this.automaticTierUpgradeEnabled = true;
+        this.automaticTierChangeEnabled = true;
     }
 
     public String getUserID() {
         return userID;
     }
 
-    public boolean isAutomaticTierUpgradeEnabled() {
-        return automaticTierUpgradeEnabled;
+    public boolean isAutomaticTierChangeEnabled() {
+        return automaticTierChangeEnabled;
     }
 
-    public void setAutomaticTierUpgradeEnabled(boolean automaticTierUpgradeEnabled) {
-        this.automaticTierUpgradeEnabled = automaticTierUpgradeEnabled;
+    public void setAutomaticTierChangeEnabled(boolean automaticTierChangeEnabled) {
+        this.automaticTierChangeEnabled = automaticTierChangeEnabled;
     }
 
     public PlanTierEntity getPlanTier() {
