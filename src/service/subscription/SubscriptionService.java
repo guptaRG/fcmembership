@@ -9,4 +9,5 @@ public interface SubscriptionService {
     SubscriptionEntity create(CreateSubscriptionRequest createSubscriptionRequest);
     SubscriptionEntity upgradePlanTier(UpgradePlanTierRequest upgradePlanTierRequest);
     SubscriptionEntity downgradePlanTier(DowngradePlanTierRequest downgradePlanTierRequest);
+    SubscriptionEntity getCurrent(String userID);
 }
