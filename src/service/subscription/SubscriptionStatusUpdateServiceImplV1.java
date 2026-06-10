@@ -57,4 +57,26 @@ public class SubscriptionStatusUpdateServiceImplV1 implements SubscriptionStatus
             return subscription;
         }
     }
+
+    @Override
+    public SubscriptionEntity cancel(SubscriptionEntity subscription, String userID) {
+        if (!subscription.getUserID().equals(userID)) {
+            throw new InvalidRequestException("Not authorized to cancel this subscription", null);
+        }
+        if (!subscription.getStatus().toStatusUpdateValid(SubscriptionStatus.CANCELED)) {
+            throw new InvalidRequestException("Invalid status update", null);
+        }
+        Date cancellationDate = new Date();
+        if (cancellationDate.compareTo(subscription.getCurrentTermEnd()) >= 0 ||
+                subscription.getStatus() == SubscriptionStatus.PAUSED) {
+            subscription.setStatus(SubscriptionStatus.CANCELED);
+            subscription = subscriptionRepository.update(subscription);
+            if (subscription.getStatus() == SubscriptionStatus.PAUSED) {
+                subscriptionPaymentService.handlePausedSubscriptionCancellationRefund(subscription, cancellationDate);
+            }
+        }
+        subscriptionStatusUpdateEventRepository.save(new SubscriptionStatusUpdateEventEntity(
+                SubscriptionStatus.CANCELED, subscription, cancellationDate));
+        return subscription;
+    }
 }
