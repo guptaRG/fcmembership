@@ -79,10 +79,18 @@ public class Main {
             SubscriptionEntity subscriptionTemp2 = subscriptionService.create(new CreateSubscriptionRequest("1", null,
                     plan1.planID()));
             System.out.println(subscriptionTemp2);
-            System.out.println(statusUpdateService.activate(new ActivateSubscriptionRequest(subscriptionTemp2.getId(),
-                    "1")));
+            subscriptionTemp2 = statusUpdateService.activate(new ActivateSubscriptionRequest(subscriptionTemp2.getId(),
+                    "1"));
             System.out.println();
-
+            System.out.println(subscriptionService.upgradePlanTier(new UpgradePlanTierRequest(
+                    planTierRepository.getById(plan1.tiers().get(1).id()).orElseThrow(), subscriptionTemp2.getId(), "1",
+                    "2")));
+            System.out.println(subscriptionService.downgradePlanTier(new DowngradePlanTierRequest(
+                    planTierRepository.getById(plan1.tiers().get(0).id()).orElseThrow(), subscriptionTemp2.getId(), "1")));
+            System.out.println();
+            System.out.println(statusUpdateService.cancel(subscriptionTemp2, "1"));
+            System.out.println();
+            System.out.println(subscriptionService.getCurrent("1"));
         } catch (Exception e) {
             System.out.printf("Failed: %s\n", e.getMessage());
         }

@@ -143,4 +143,22 @@ public class SubscriptionServiceImplV1 implements SubscriptionService {
             }
         }
     }
+
+    @Override
+    public SubscriptionEntity getCurrent(String userID) {
+        List<SubscriptionEntity> activeSubscriptions = subscriptionRepository.getAllByUserSubscriptionStatus(userID,
+                SubscriptionStatus.ACTIVE);
+        if (activeSubscriptions.size() > 1) {
+            throw new InconsistentDBStateException("Active subscriptions can't be more than 1 for the same user", null);
+        }
+        if (!activeSubscriptions.isEmpty()) {
+            return activeSubscriptions.get(0);
+        }
+        List<SubscriptionEntity> newLeadSubscriptions = subscriptionRepository.getAllByUserSubscriptionStatus(userID,
+                SubscriptionStatus.NEW_LEAD);
+        if (newLeadSubscriptions.size() > 1) {
+            throw new InconsistentDBStateException("Lead subscriptions can't be more than 1 for the same user", null);
+        }
+        return newLeadSubscriptions.get(0);
+    }
 }
