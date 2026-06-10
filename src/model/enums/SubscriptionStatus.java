@@ -6,6 +6,7 @@ public enum SubscriptionStatus {
     NEW_LEAD,
     ACTIVE,
     CANCELED,
+    EXPIRED,
     PAUSED;
 
     private static final Map<SubscriptionStatus, Set<SubscriptionStatus>> statusTransitionMap =
