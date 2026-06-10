@@ -84,7 +84,10 @@ public class SubscriptionServiceImplV1 implements SubscriptionService {
         if (!subs.getUserID().equals(upgradePlanTierRequest.userID())) {
             throw new InvalidRequestException("Not authorized to upgrade plan tier", null);
         }
-        if (subs.getStatus() == SubscriptionStatus.CANCELED || subs.getStatus() == SubscriptionStatus.NEW_LEAD) {
+        if (subs.getStatus() == SubscriptionStatus.CANCELED ||
+                subs.getStatus() == SubscriptionStatus.NEW_LEAD ||
+                subs.getCurrentTermEnd().compareTo(new Date()) <= 0) {
+
             throw new InvalidRequestException("Subscription needs to be active/paused for upgrading the plan tier",
                     null);
         }
@@ -116,7 +119,10 @@ public class SubscriptionServiceImplV1 implements SubscriptionService {
         if (!subs.getUserID().equals(downgradePlanTierRequest.userID())) {
             throw new InvalidRequestException("Not authorized to downgrade plan tier", null);
         }
-        if (subs.getStatus() == SubscriptionStatus.CANCELED || subs.getStatus() == SubscriptionStatus.NEW_LEAD) {
+        if (subs.getStatus() == SubscriptionStatus.CANCELED ||
+                subs.getStatus() == SubscriptionStatus.NEW_LEAD ||
+                subs.getCurrentTermEnd().compareTo(new Date()) <= 0) {
+
             throw new InvalidRequestException("Subscription needs to be active/paused for downgrading the plan tier",
                     null);
         }

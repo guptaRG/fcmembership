@@ -67,8 +67,12 @@ public class SubscriptionStatusUpdateServiceImplV1 implements SubscriptionStatus
             throw new InvalidRequestException("Invalid status update", null);
         }
         Date cancellationDate = new Date();
-        if (cancellationDate.compareTo(subscription.getCurrentTermEnd()) >= 0 ||
+        if (cancellationDate.after(subscription.getCurrentTermEnd())) {
+            throw new InvalidRequestException("The subscription is already expired", null);
+        }
+        if (cancellationDate.equals(subscription.getCurrentTermEnd()) ||
                 subscription.getStatus() == SubscriptionStatus.PAUSED) {
+
             subscription.setStatus(SubscriptionStatus.CANCELED);
             subscription = subscriptionRepository.update(subscription);
             if (subscription.getStatus() == SubscriptionStatus.PAUSED) {
