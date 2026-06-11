@@ -80,23 +80,23 @@ public class SubscriptionServiceImplV1 implements SubscriptionService {
         if (!upgradePlanTierRequest.isValid()) {
             throw new InvalidRequestException("Invalid upgrade plan tier request", null);
         }
-        SubscriptionEntity subs = subscriptionRepository.getById(upgradePlanTierRequest.subscriptionID()).orElseThrow();
-        if (!subs.getUserID().equals(upgradePlanTierRequest.userID())) {
-            throw new InvalidRequestException("Not authorized to upgrade plan tier", null);
-        }
-        if (subs.getStatus() == SubscriptionStatus.CANCELED ||
-                subs.getStatus() == SubscriptionStatus.NEW_LEAD ||
-                subs.getCurrentTermEnd().compareTo(new Date()) <= 0) {
+        synchronized (upgradePlanTierRequest.subscriptionID()) {
+            SubscriptionEntity subs = subscriptionRepository.getById(upgradePlanTierRequest.subscriptionID()).orElseThrow();
+            if (!subs.getUserID().equals(upgradePlanTierRequest.userID())) {
+                throw new InvalidRequestException("Not authorized to upgrade plan tier", null);
+            }
+            if (subs.getStatus() == SubscriptionStatus.CANCELED ||
+                    subs.getStatus() == SubscriptionStatus.NEW_LEAD ||
+                    subs.getCurrentTermEnd().compareTo(new Date()) <= 0) {
 
-            throw new InvalidRequestException("Subscription needs to be active/paused for upgrading the plan tier",
-                    null);
-        }
-        if (subs.getPlanTier().getTier() >= upgradePlanTierRequest.newPlanTier().getTier()) {
-            throw new InvalidRequestException("Can only upgrade the plan to a higher tier", null);
-        }
-        subs.setPlanTier(upgradePlanTierRequest.newPlanTier());
-        subs.setAutomaticTierChangeEnabled(false);
-        synchronized (subs.getId()) {
+                throw new InvalidRequestException("Subscription needs to be active/paused for upgrading the plan tier",
+                        null);
+            }
+            if (subs.getPlanTier().getTier() >= upgradePlanTierRequest.newPlanTier().getTier()) {
+                throw new InvalidRequestException("Can only upgrade the plan to a higher tier", null);
+            }
+            subs.setPlanTier(upgradePlanTierRequest.newPlanTier());
+            subs.setAutomaticTierChangeEnabled(false);
             SubscriptionPaymentsEntity paymentsEntity = subscriptionPaymentService.addPayment(subs,
                     upgradePlanTierRequest.paymentID(), upgradePlanTierRequest.newPlanTier().getAdditionalPaymentPaise() -
                             subs.getPlanTier().getAdditionalPaymentPaise());
@@ -114,24 +114,24 @@ public class SubscriptionServiceImplV1 implements SubscriptionService {
         if (!downgradePlanTierRequest.isValid()) {
             throw new InvalidRequestException("Invalid downgrade plan tier request", null);
         }
-        SubscriptionEntity subs = subscriptionRepository.getById(downgradePlanTierRequest.subscriptionID())
-                .orElseThrow();
-        if (!subs.getUserID().equals(downgradePlanTierRequest.userID())) {
-            throw new InvalidRequestException("Not authorized to downgrade plan tier", null);
-        }
-        if (subs.getStatus() == SubscriptionStatus.CANCELED ||
-                subs.getStatus() == SubscriptionStatus.NEW_LEAD ||
-                subs.getCurrentTermEnd().compareTo(new Date()) <= 0) {
+        synchronized (downgradePlanTierRequest.subscriptionID()) {
+            SubscriptionEntity subs = subscriptionRepository.getById(downgradePlanTierRequest.subscriptionID())
+                    .orElseThrow();
+            if (!subs.getUserID().equals(downgradePlanTierRequest.userID())) {
+                throw new InvalidRequestException("Not authorized to downgrade plan tier", null);
+            }
+            if (subs.getStatus() == SubscriptionStatus.CANCELED ||
+                    subs.getStatus() == SubscriptionStatus.NEW_LEAD ||
+                    subs.getCurrentTermEnd().compareTo(new Date()) <= 0) {
 
-            throw new InvalidRequestException("Subscription needs to be active/paused for downgrading the plan tier",
-                    null);
-        }
-        if (subs.getPlanTier().getTier() <= downgradePlanTierRequest.newPlanTier().getTier()) {
-            throw new InvalidRequestException("Can only downgrade the plan to a lower tier", null);
-        }
-        subs.setPlanTier(downgradePlanTierRequest.newPlanTier());
-        subs.setAutomaticTierChangeEnabled(false);
-        synchronized (subs.getId()) {
+                throw new InvalidRequestException("Subscription needs to be active/paused for downgrading the plan tier",
+                        null);
+            }
+            if (subs.getPlanTier().getTier() <= downgradePlanTierRequest.newPlanTier().getTier()) {
+                throw new InvalidRequestException("Can only downgrade the plan to a lower tier", null);
+            }
+            subs.setPlanTier(downgradePlanTierRequest.newPlanTier());
+            subs.setAutomaticTierChangeEnabled(false);
             SubscriptionPaymentsEntity paymentsEntity = subscriptionPaymentService.addPayment(subs, null,
                     downgradePlanTierRequest.newPlanTier().getAdditionalPaymentPaise() -
                             subs.getPlanTier().getAdditionalPaymentPaise());
